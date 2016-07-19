@@ -1,25 +1,13 @@
 'use strict';
 
 const net = require('net');
-const clientPool = require('./lib/clientPool');
+const ClientPool = require('./lib/clientPool');
+let clientPool = new ClientPool();
 
-const server = net.createServer((socket) => {
-  let clients = [];
-  let pool = {};
-  clients.push(new clientPool(pool));
+const server = net.createServer();
 
-  socket.on('data', () => {
-    clientPool.ee.emit('data');
-  });
-
-  socket.on('error', () => {
-    clientPool.ee.emit('error');
-  });
-
-  socket.on('close', () => {
-    clientPool.ee.emit('close');
-  });
-
+server.on('connection', (socket) => {
+  clientPool.ee.emit('register', socket);
 });
 
 server.listen(3000, () => {

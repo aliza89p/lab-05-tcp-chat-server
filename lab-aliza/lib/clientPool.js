@@ -1,31 +1,44 @@
+'use strict';
+
 const ee = require('events');
 
-const clientPool = function(pool) {
-  this.pool = pool;
-  pool.id = (Math.floor(Math.random() * 90000) + 10000);
-  pool.name = 'user_: ' + pool.id;
+const ClientPool = function() {
+  this.ee = new ee();
+  this.pool = {};
 
-  ee.on('close', () => {
-    clients.splice(clients.indexOf(socket), 1);
-  });
+  this.ee.on('register', function(socket) {
+    socket.id = Math.floor(Math.random() * 90000) + 10000;
+    socket.nickName = 'user_' + Math.floor(Math.random() * 900) + 100;
+    this.pool[socket.id] = socket;
 
-  ee.on('error', () => {
-    console.log('error');
-  });
+    this.ee.on('error', (error) => {
+      console.log('error', error);
+    });
 
-  ee.on('data', (data) => {
-    console.log(pool.name + ': ' + data.toString());
-    socket.write('message sent\n');
-    clients.forEach((client) => {
-      if (socket.name !== client.name) {
-        client.write('user_' + socket.name + ': ' + data.toString());
-      }
-      if (data.toString() === 'LEAVE CHAT\r\n') {
-        client.write('Disconnected... ');
-        socket.end();
+    this.ee.on('data', (data) => {
+      socket.ee.emit('broadcast', data);
+    });
+
+    this.ee.on('close', () => {
+      delete ClientPool.pool[socket.id];
+      console.log('closed from pool');
+      socket.end();
+    });
+
+    this.ee.on('broadcast', (data) => {
+      console.log(this.socket.nickname + ': ' + data.toString());
+      socket.write('message sent\n');
+      for(var client in ClientPool.pool){
+        if (client !== socket.id) {
+          client.write('user_' + this.socket.nickName + ': ' + data.toString());
+        }
+        if (data.toString() === 'LEAVE CHAT\r\n') {
+          client.write('Disconnected... ');
+          socket.ee.emit('close');
+        }
       }
     });
-  });
+  }.bind(this));
 };
 
-module.exports = exports = clientPool;
+module.exports = exports = ClientPool;
