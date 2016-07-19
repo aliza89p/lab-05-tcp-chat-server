@@ -16,7 +16,7 @@ const ClientPool = function() {
     });
 
     this.ee.on('data', (data) => {
-      socket.ee.emit('broadcast', data);
+      this.ee.emit('broadcast', data);
     });
 
     this.ee.on('close', () => {
@@ -27,14 +27,14 @@ const ClientPool = function() {
 
     this.ee.on('broadcast', (data) => {
       console.log(this.socket.nickname + ': ' + data.toString());
-      socket.write('message sent\n');
+      this.write('message sent\n');
       for(var client in ClientPool.pool){
         if (client !== socket.id) {
           client.write('user_' + this.socket.nickName + ': ' + data.toString());
         }
         if (data.toString() === 'LEAVE CHAT\r\n') {
           client.write('Disconnected... ');
-          socket.ee.emit('close');
+          this.ee.emit('close');
         }
       }
     });
