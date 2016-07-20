@@ -15,8 +15,7 @@ describe('chat server', () => {
     server.listen(port, done);
   });
   after((done) => {
-    server.close();
-    done();
+    server.close(done);
   });
 
   it('should send messages between clients', (done) => {
