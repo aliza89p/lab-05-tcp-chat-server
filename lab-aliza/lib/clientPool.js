@@ -7,10 +7,9 @@ const ClientPool = function() {
   this.pool = {};
 
   this.ee.on('register', (socket) => {
-    socket.write('Welcome to the chatroom!\n');
     socket.id = Math.floor(Math.random() * 90000) + 10000;
-    socket.nickName = 'user_' + Math.floor(Math.random() * 900) + 100;
-
+    socket.nickName = 'user_' + Math.floor(Math.random() * 900) + 100 + ': ';
+    socket.write('Welcome to the chatroom!\n');
     socket.on('data', (data) => {
       socket.emit('broadcast', data);
       if (data.toString() == 'END\r\n') {
@@ -20,7 +19,7 @@ const ClientPool = function() {
     });
 
     socket.on('error', (err) => {
-      console.log('error: ' + err);
+      return('error: ' + err);
     });
 
     socket.on('close', () => {
@@ -30,9 +29,9 @@ const ClientPool = function() {
 
     socket.on('broadcast', (data) => {
       for(var user in this.pool) {
-        this.pool[user].write(socket.nickName + ': ' + data.toString());
+        this.pool[user].write(socket.nickName + data.toString());
       }
-      console.log(socket.nickName + ': ' + data.toString());
+      console.log(socket.nickName + data.toString());
     });
     this.pool[socket.id] = socket;
   });
