@@ -21,13 +21,13 @@ describe('chat server', () => {
   it('should send data between clients', (done) => {
     let client1 = net.connect({port});
     let client2 = net.connect({port});
-    var messages = ['test message 2', 'test message 1', 'Welcome to the chatroom!\n'];
-    var toSend = ['test message 2', 'test message 1'];
+    var messages = ['test message TWO', 'test message ONE', 'Welcome to the chatroom!\n'];
+    var messageToSend = ['test message TWO', 'test message ONE'];
 
     client2.on('data', function(data) {
       expect(data.toString()).to.eql(messages.pop());
-      if (toSend.length) {
-        client1.write(toSend.pop());
+      if (messageToSend.length) {
+        client1.write(messageToSend.pop());
       } else {
         client1.end();
       }

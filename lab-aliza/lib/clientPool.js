@@ -29,9 +29,10 @@ const ClientPool = function() {
 
     socket.on('broadcast', (data) => {
       for(var user in this.pool) {
-        this.pool[user].write(socket.nickName + data.toString());
+        this.pool[user].write(data.toString());
       }
-      console.log(socket.nickName + data.toString());
+      process.stdout.write(socket.nickName);
+      console.log(data.toString());
     });
     this.pool[socket.id] = socket;
   });
